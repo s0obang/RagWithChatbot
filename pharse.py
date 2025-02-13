@@ -2,14 +2,64 @@ from bs4 import BeautifulSoup
 import json
 import random
 import os
+import boto3
+import requests
+from io import BytesIO
+from dotenv import load_dotenv
 
-# 샘플 URL 생성 함수 (임시 URL)
-def generate_dummy_urls(count):
-    return [f"https://example.com/{random.randint(1000, 9999)}" for _ in range(count)]
+# .env 파일 로드
+load_dotenv()
 
-# 파일에서 HTML 데이터 읽기
-input_file = "input_data.txt"  # HTML 데이터가 있는 파일
-output_file = "output_data.json"  # 변환된 JSON 데이터를 저장할 파일
+# 환경 변수에서 AWS 설정값 가져오기
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_DEFAULT_REGION")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+S3_FOLDER = os.getenv("S3_FOLDER")
+
+# Boto3 S3 클라이언트 생성
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION
+)
+
+# HTML 파일 경로
+input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\input_data.txt"
+output_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json"  # 변환된 JSON 데이터를 저장할 파일
+
+def download_and_upload_image(image_url):
+    """이미지를 다운로드한 후 S3에 업로드하고 S3 URL 반환"""
+    if not image_url:
+        print("❌ 이미지 URL이 None입니다. 업로드 건너뜀.")
+        return None
+
+    try:
+        # 1️⃣ 이미지 다운로드
+        response = requests.get(image_url, stream=True)
+        
+        if response.status_code != 200:
+            print(f"❌ 이미지 다운로드 실패: {image_url} (응답 코드: {response.status_code})")
+            return None
+
+        image_data = BytesIO(response.content)  # 메모리 내에서 파일처럼 다루기
+
+        # 2️⃣ 파일 확장자 처리 (URL에서 확장자 추출, 없으면 jpg 사용)
+        file_extension = image_url.split(".")[-1].split("?")[0] if "." in image_url else "jpg"
+        s3_filename = f"{S3_FOLDER}{random.randint(1000, 9999)}.{file_extension}"  # S3 파일 경로 지정
+
+        # 3️⃣ S3에 업로드
+        s3_client.upload_fileobj(image_data, S3_BUCKET_NAME, s3_filename, ExtraArgs={'ACL': 'public-read'})
+
+        # 4️⃣ 업로드된 파일의 S3 URL 생성
+        s3_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_filename}"
+        print(f"✅ 이미지 업로드 성공: {s3_url}")
+        return s3_url
+
+    except Exception as e:
+        print(f"❌ 이미지 업로드 중 오류 발생: {e}")
+        return None
 
 # HTML 데이터를 읽고 줄바꿈 기준으로 나눔
 with open(input_file, "r", encoding="utf-8") as f:
@@ -31,12 +81,37 @@ for html_data in html_blocks:
         create_time = article.find("time", class_="large").text.strip()
         content = article.find("p", class_="large").text.strip()
 
-        # 첨부 이미지 추출 (attaches 내의 이미지만)
+        # 첨부 이미지 추출 (하나 또는 여러 개 처리)
+        image_urls = []
         attach_images = article.find("div", class_="attaches")
+
         if attach_images:
-            image_urls = [img["src"] for img in attach_images.find_all("img")]
-        else:
-            image_urls = generate_dummy_urls(1)  # 기본 더미 URL 추가
+            # 1️⃣ **이미지가 여러 개일 경우**
+            if "multiple" in attach_images.get("class", []):
+                for img in attach_images.find_all("img"):
+                    img_src = img.get("src")
+                    if img_src:
+                        print(f"🔹 다중 이미지 URL 찾음: {img_src}")
+                        uploaded_url = download_and_upload_image(img_src)
+                        if uploaded_url:
+                            image_urls.append(uploaded_url)
+                        else:
+                            print(f"⚠️ 이미지 업로드 실패: {img_src}")
+
+            # 2️⃣ **이미지가 하나일 경우**
+            elif "full" in attach_images.get("class", []):
+                img_tag = attach_images.find("img")
+                if img_tag:
+                    img_src = img_tag.get("src")
+                    if img_src:
+                        print(f"🔹 단일 이미지 URL 찾음: {img_src}")
+                        uploaded_url = download_and_upload_image(img_src)
+                        if uploaded_url:
+                            image_urls.append(uploaded_url)
+                        else:
+                            print(f"⚠️ 이미지 업로드 실패: {img_src}")
+                else:
+                    print("⚠️ `img` 태그가 존재하지 않음. 업로드 건너뜀.")
 
         # 댓글 추출
         comments = [comment.text.strip() for comment in article.find_all("p", class_="large")][1:]
@@ -66,4 +141,4 @@ existing_data.extend(articles)
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(existing_data, f, ensure_ascii=False, indent=4)
 
-print(f"변환 완료! JSON 데이터가 {output_file}에 저장되었습니다.")
+print(f"✅ 변환 완료! JSON 데이터가 {output_file}에 저장되었습니다.")
