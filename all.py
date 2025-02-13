@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI()
 llm.invoke("Hello, world!")
-'''
+
 import bs4
 from langchain import hub
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -29,7 +29,7 @@ from langchain.schema import Document
 import re
 
 import requests
-
+'''
 # 1. 로그인 URL 후보
 urls = [
     "https://everytime.kr/user/login",
@@ -122,19 +122,9 @@ def extract_clean_text(html_content):
     return text
 
 '''
-from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
-from langchain.embeddings import OpenAIEmbeddings
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
-from langchain.schema import Document
-from langchain.schema.runnable import RunnablePassthrough
-from langchain.output_parsers import StrOutputParser
-import Prompt
 
 # ✅ 1. TXT 파일에서 텍스트 로드
-input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\input_data.txt"  # TXT 파일 경로
+input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json"  # TXT 파일 경로
 
 with open(input_file, "r", encoding="utf-8") as f:
     text_content = f.read()
@@ -150,13 +140,13 @@ splits = text_splitter.split_documents(docs)
 vectorstore = FAISS.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 retriever = vectorstore.as_retriever()
 
-print(f"📌 Number of vectors stored: {vectorstore.index.ntotal}")
+#print(f"📌 Number of vectors stored: {vectorstore.index.ntotal}")
 
 # ✅ 5. 프롬프트 템플릿 정의
-prompt = Prompt.prompt3
+prompt = Prompt.Prompt.prompt4
 
 # ✅ 6. LLM 설정 (GPT-4o 사용)
-llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
+llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
 
 # ✅ 7. RAG 체인 생성
 rag_chain = (
@@ -171,5 +161,10 @@ query = "수룡이 인형 어디서 사?"
 answer = "".join(rag_chain.stream(query))
 
 # ✅ 9. 결과 출력
-print(f"🔍 질문: {query}")
-print(f"📝 답변: {answer}")
+print(f"질문: {query}")
+print(f"답변: {answer}")
+
+
+#그냥 지피티 사용도 구현해놓기
+#답변 걍 이어서 하게
+
