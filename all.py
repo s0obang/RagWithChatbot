@@ -28,6 +28,7 @@ from langchain.schema import Document
 import re
 
 import requests
+'''
 # 1. 로그인 URL 후보
 urls = [
     "https://everytime.kr/user/login",
@@ -56,7 +57,7 @@ payload = {
     "password": "",
     # 추가적인 hidden 필드나 토큰 값이 있다면 확인 후 추가해야 함
     "redirect_uri": "https://everytime.kr",
-    "keep": "false"
+    "keep": "true"
 }
 #헤더 추가
 headers = {
@@ -67,43 +68,42 @@ headers = {
 
 
 # 4. 로그인 요청 보내기
-response = session.post(login_url, data=payload, headers=headers, allow_redirects=True)
+response = session.post(login_url, data=payload, headers=headers, allow_redirects=False)
 
 if "Set-Cookie" in response.headers:
     cookies = response.headers["Set-Cookie"]
     for cookie in cookies.split(";"):
         if "etsid=" in cookie:
             etsid_value = cookie.split("=")[1]
-            session.cookies.set("etsid", etsid_value, domain="everytime.kr")
+            session.cookies.set("etsid", "s%3Akuz_dlxg59Nwx2oYP8LrvRLpRjfB02gn.R%2FfRfoyKINFAcffnJeVkvABh9gCziIsPmKEFeScKHc", domain="everytime.kr")
 
+'''
+login_url = "https://account.everytime.kr/api/authenticate/login"
+target_url = "https://everytime.kr/257604"
+session = requests.Session()
+session.cookies.set("etsid", "s:kuz_dlxg59Nwx2oYP8LrvRLpRjfB02gn.R/fRfoyKINFAcffnJeVkvABh9gCziIsPmKEFeScKHc", domain="everytime.kr")
 print("설정된 쿠키:", session.cookies.get_dict())
 
 
-# 5. 로그인 성공 여부 확인 
-if response.ok:
+
+
     
-    print("로그인 성공!")
-    
-    # 6. WebBaseLoader에 쿠키 전달
-    loader = WebBaseLoader(
-        web_paths=(target_url,),
-        session=session,  # 로그인된 세션을 WebBaseLoader에 전달
-        bs_kwargs=dict(
-            parse_only=bs4.SoupStrainer(
-                "h2",
-                attrs={"class": ["medium bold"]},
-            )
-        ),
-    )
+
+loader = WebBaseLoader(
+    web_paths=(target_url,),
+    session=session,  # 로그인된 세션을 WebBaseLoader에 전달
+    bs_kwargs=dict(
+        parse_only=bs4.SoupStrainer(
+            "h2",
+            attrs={"class": ["medium bold"]},
+        )
+    ),
+)
 
     # 7. 데이터 가져오기
-    docs = loader.load()
-    for doc in docs:
-        print(doc.page_content)
-else:
-    print("로그인 실패!")
-    print("응답 상태 코드:", response.status_code)
-    print("응답 본문:", response.text)
+docs = loader.load()
+for doc in docs:
+    print(doc.page_content)
 
 
 
