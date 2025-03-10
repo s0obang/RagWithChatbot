@@ -17,17 +17,13 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-import os
-import openai
-import os
 import Prompt
-
 import bs4
-from bs4 import BeautifulSoup
 from langchain.schema import Document
 
 
-input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json" 
+#input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json" 
+input_file = "C:\Soop\연구\RagTest\ChatBotWithRag" 
 
 with open(input_file, "r", encoding="utf-8") as f:
     text_content = f.read()
