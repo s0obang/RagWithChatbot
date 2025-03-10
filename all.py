@@ -8,6 +8,7 @@ from langchain_openai import ChatOpenAI
 llm = ChatOpenAI()
 llm.invoke("Hello, world!")
 
+
 import bs4
 from langchain import hub
 from langchain_text_splitters import RecursiveCharacterTextSplitter

@@ -32,33 +32,32 @@ output_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_job.
 def download_and_upload_image(image_url):
     """이미지를 다운로드한 후 S3에 업로드하고 S3 URL 반환"""
     if not image_url:
-        print("❌ 이미지 URL이 None입니다. 업로드 건너뜀.")
+        print("이미지 URL이 None. 업로드 건너뜀.")
         return None
 
     try:
-        # 1️⃣ 이미지 다운로드
+        #이미지 다운
         response = requests.get(image_url, stream=True)
-        
         if response.status_code != 200:
-            print(f"❌ 이미지 다운로드 실패: {image_url} (응답 코드: {response.status_code})")
+            print(f"이미지 다운로드 실패: {image_url} (응답 코드: {response.status_code})")
             return None
 
         image_data = BytesIO(response.content)  # 메모리 내에서 파일처럼 다루기
 
-        # 2️⃣ 파일 확장자 처리 (URL에서 확장자 추출, 없으면 jpg 사용)
+        #파일 확장자 처리 (없으면 jpg)
         file_extension = image_url.split(".")[-1].split("?")[0] if "." in image_url else "jpg"
         s3_filename = f"{S3_FOLDER}{random.randint(1000, 9999)}.{file_extension}"  # S3 파일 경로 지정
 
-        # 3️⃣ S3에 업로드
+        #S3에 업로드
         s3_client.upload_fileobj(image_data, S3_BUCKET_NAME, s3_filename, ExtraArgs={'ACL': 'public-read'})
 
-        # 4️⃣ 업로드된 파일의 S3 URL 생성
+        #업로드된 파일의 S3 URL 생성
         s3_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_filename}"
-        print(f"✅ 이미지 업로드 성공: {s3_url}")
+        print(f"이미지 업로드 성공: {s3_url}")
         return s3_url
 
     except Exception as e:
-        print(f"❌ 이미지 업로드 중 오류 발생: {e}")
+        print(f"이미지 업로드 중 오류 발생: {e}")
         return None
 
 # HTML 데이터를 읽고 줄바꿈 기준으로 나눔
@@ -86,7 +85,7 @@ for html_data in html_blocks:
         attach_images = article.find("div", class_="attaches")
 
         if attach_images:
-            # 1️⃣ **이미지가 여러 개일 경우**
+            #이미지가 여러 개
             if "multiple" in attach_images.get("class", []):
                 for img in attach_images.find_all("img"):
                     img_src = img.get("src")
@@ -98,7 +97,7 @@ for html_data in html_blocks:
                         else:
                             print(f"⚠️ 이미지 업로드 실패: {img_src}")
 
-            # 2️⃣ **이미지가 하나일 경우**
+            #이미지 하나일경우
             elif "full" in attach_images.get("class", []):
                 img_tag = attach_images.find("img")
                 if img_tag:
@@ -113,10 +112,10 @@ for html_data in html_blocks:
                 else:
                     print("⚠️ `img` 태그가 존재하지 않음. 업로드 건너뜀.")
 
-        # 댓글 추출
+        #댓글
         comments = [comment.text.strip() for comment in article.find_all("p", class_="large")][1:]
 
-        # JSON 형태의 데이터 추가
+        # JSON 형태로 데이터 추가
         articles.append({
             "title": title,
             "create": create_time,
