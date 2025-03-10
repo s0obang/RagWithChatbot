@@ -1,3 +1,4 @@
 .env
 .env
 #input_data.txt
+venv/

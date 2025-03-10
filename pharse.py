@@ -26,8 +26,8 @@ s3_client = boto3.client(
 )
 
 # HTML 파일 경로
-input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\input_data.txt"
-output_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json"  # 변환된 JSON 데이터를 저장할 파일
+input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/input_job.txt"
+output_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_job.json"  # 변환된 JSON 데이터를 저장할 파일
 
 def download_and_upload_image(image_url):
     """이미지를 다운로드한 후 S3에 업로드하고 S3 URL 반환"""
