@@ -22,8 +22,8 @@ import bs4
 from langchain.schema import Document
 
 
-#input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json" 
-input_file = "C:\Soop\연구\RagTest\ChatBotWithRag" 
+input_file = "/Users/minseon/2025/학부연구생/RAG/RagWithChatbot/output_data.json" 
+#input_file = "C:\Soop\연구\RagTest\ChatBotWithRag" 
 
 with open(input_file, "r", encoding="utf-8") as f:
     text_content = f.read()
