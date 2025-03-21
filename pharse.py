@@ -90,12 +90,12 @@ for html_data in html_blocks:
                 for img in attach_images.find_all("img"):
                     img_src = img.get("src")
                     if img_src:
-                        print(f"🔹 다중 이미지 URL 찾음: {img_src}")
+                        print(f"다중 이미지 URL: {img_src}")
                         uploaded_url = download_and_upload_image(img_src)
                         if uploaded_url:
                             image_urls.append(uploaded_url)
                         else:
-                            print(f"⚠️ 이미지 업로드 실패: {img_src}")
+                            print(f"이미지 업로드 실패: {img_src}")
 
             #이미지 하나일경우
             elif "full" in attach_images.get("class", []):
@@ -103,14 +103,14 @@ for html_data in html_blocks:
                 if img_tag:
                     img_src = img_tag.get("src")
                     if img_src:
-                        print(f"🔹 단일 이미지 URL 찾음: {img_src}")
+                        print(f"단일 이미지 URL: {img_src}")
                         uploaded_url = download_and_upload_image(img_src)
                         if uploaded_url:
                             image_urls.append(uploaded_url)
                         else:
-                            print(f"⚠️ 이미지 업로드 실패: {img_src}")
+                            print(f"이미지 업로드 실패: {img_src}")
                 else:
-                    print("⚠️ `img` 태그가 존재하지 않음. 업로드 건너뜀.")
+                    print("img없음. 업로드 건너뜀.")
 
         #댓글
         comments = [comment.text.strip() for comment in article.find_all("p", class_="large")][1:]
@@ -140,4 +140,4 @@ existing_data.extend(articles)
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(existing_data, f, ensure_ascii=False, indent=4)
 
-print(f"✅ 변환 완료! JSON 데이터가 {output_file}에 저장되었습니다.")
+print(f"변환 완료")
