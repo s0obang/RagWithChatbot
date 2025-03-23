@@ -1,36 +1,34 @@
 from dotenv import load_dotenv
-import bs4
-from langchain import hub
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import Prompt
-import bs4
 from langchain.schema import Document
 import os
+import json
+
 def write(resultPath, resultSet):
-    # 기존 텍스트 파일 읽기 (있으면 기존 내용 유지)
+    #기존 텍스트 파일 읽기 (있으면 기존 내용 유지)
     if os.path.exists(resultPath):
         with open(resultPath, "r", encoding="utf-8") as f:
             existing_data = f.read()
     else:
         existing_data = ""
 
-    # 새로운 데이터 추가
+    #새로운 데이터 추가
     with open(resultPath, "w", encoding="utf-8") as f:
         f.write(existing_data)
         for line in resultSet:
-            f.write(line)  # 줄바꿈 포함되어 있으므로 그대로 씀
+            f.write(line)
 
     print(f"변환 완료, 결과 저장됨: {resultPath}")
 
 def test(questionPath, resultPath):
-    # 질문 파일 읽기: 공백 제거 + 한 줄씩 리스트로 저장
+    # 질문 파일 읽기(공백 제거,한 줄씩 리스트로 저장)
     with open(questionPath, "r", encoding="utf-8") as f:
-        questions = [line.strip() for line in f if line.strip()]  # 빈 줄 제거
+        questions = [line.strip() for line in f if line.strip()]  #빈 줄 제거
 
     results = []
 
@@ -43,20 +41,31 @@ def test(questionPath, resultPath):
     # 결과 저장
     write(resultPath, results)
 
+def load_json_to_documents(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    documents = []
+    for item in data:
+        title = item.get("title", "")
+        content = item.get("content", "")
+        comments = "\n".join(item.get("comments", []))
+        create = item.get("create", "")
+
+        full_text = f"{title}\n\n{content}\n\n답변:\n{comments}"
+        documents.append(Document(page_content=full_text, metadata={"create": create}))
+    
+    return documents
+
 # API 키 정보 로드
 load_dotenv()
 
 
 #input_file = "/Users/minseon/2025/학부연구생/RAG/RagWithChatbot/output_data.json" 
-#input_file = "C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json" 
-input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json"
+input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json" 
+#input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json"
 
-with open(input_file, "r", encoding="utf-8") as f:
-    text_content = f.read()
-
-# 텍스트를 Document 리스트로 변환
-docs = [Document(page_content=text_content)]
-
+docs = load_json_to_documents(input_file)
 # 텍스트를 청크(Chunk)로 분할
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=250)
 splits = text_splitter.split_documents(docs)
@@ -79,8 +88,12 @@ rag_chain = (
     | llm
     | StrOutputParser()
 )
-questionPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/questions.txt"
-resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/result1"
+#questionPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/questions.txt"
+#resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/result1"
+
+questionPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\questions.txt"
+resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/result2"
+
 test(questionPath, resultPath)
 
 
