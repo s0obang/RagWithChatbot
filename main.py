@@ -65,13 +65,9 @@ load_dotenv()
 input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json" 
 #input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json"
 
-#docs = load_json_to_documents(input_file)
+docs = load_json_to_documents(input_file)
 
-with open(input_file, "r", encoding="utf-8") as f:
-    text_content = f.read()
 
-# 2. 텍스트를 Document 리스트로 변환
-docs = [Document(page_content=text_content)]
 # 텍스트를 청크(Chunk)로 분할
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 splits = text_splitter.split_documents(docs)
