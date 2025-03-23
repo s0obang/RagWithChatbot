@@ -66,8 +66,10 @@ input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json"
 #input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json"
 
 docs = load_json_to_documents(input_file)
+
+
 # 텍스트를 청크(Chunk)로 분할
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=250)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 splits = text_splitter.split_documents(docs)
 
 # 벡터스토어 생성 (FAISS + OpenAI Embeddings)
@@ -92,7 +94,7 @@ rag_chain = (
 #resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/result1"
 
 questionPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\questions.txt"
-resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/result2"
+resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/resultWithOutCustom"
 
 test(questionPath, resultPath)
 
