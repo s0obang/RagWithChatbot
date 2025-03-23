@@ -3,5 +3,3 @@
 #input_data.txt
 venv/
 __pycache__/Prompt.cpython-313.pyc
-input*.txt
-output*.json
