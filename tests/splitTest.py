@@ -3,7 +3,11 @@ from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTe
 from langchain_community.document_loaders import JSONLoader
 import json
 from langchain.schema import Document
-
+from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from dotenv import load_dotenv
+# API 키 정보 로드
+load_dotenv()
 def load_json_to_documents(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -37,6 +41,15 @@ text_splitter = RecursiveCharacterTextSplitter(
 data = load_json_to_documents(r'C:/Soop/연구/RagTest/ChatBotWithRag/output_data.json')
 texts = text_splitter.split_documents(data)
 
+vectorstore = FAISS.from_documents(documents=data, embedding=OpenAIEmbeddings())
+retriever = vectorstore.as_retriever()
 
-print(len(texts))
-print(texts[38])
+query = '이번 장학금 선감면이야?'
+docs = vectorstore.similarity_search(query)
+print(len(docs))
+
+for i in docs:
+    print(i.page_content)
+
+#print(len(texts))
+#print(texts[38])
