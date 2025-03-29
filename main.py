@@ -8,6 +8,7 @@ import Prompt
 from langchain.schema import Document
 import os
 import json
+import time
 
 def write(resultPath, resultSet):
     #기존 텍스트 파일 읽기 (있으면 기존 내용 유지)
@@ -31,13 +32,23 @@ def test(questionPath, resultPath, rag_chain):
         questions = [line.strip() for line in f if line.strip()]  #빈 줄 제거
 
     results = []
-
+    total_start = time.time() 
     for idx, query in enumerate(questions, start=1):
         print(f"[{idx}] 질문 처리 중: {query}")
+        start_time = time.time()
         answer = "".join(rag_chain.stream(query))
-        result_entry = f"[질문 {idx}]\n{query}\n\n[답변]\n{answer}\n\n{'='*50}\n\n"
+        end_time = time.time()
+        elapsed = end_time - start_time
+        result_entry = (
+            f"[질문 {idx}]\n{query}\n\n"
+            f"[답변]\n{answer}\n\n"
+            f"[처리 시간] {elapsed:.2f}초\n"
+            f"{'='*50}\n\n"
+        )
         results.append(result_entry)
-
+    total_end = time.time()
+    total_elapsed = total_end - total_start
+    results.append(f"[총 소요 시간] {total_elapsed:.2f}초\n")
     # 결과 저장
     write(resultPath, results)
 
@@ -62,7 +73,7 @@ load_dotenv()
 
 
 #input_file = "/Users/minseon/2025/학부연구생/RAG/RagWithChatbot/output_data.json" 
-input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\output_data.json" 
+input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\op_data.json" 
 #input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json"
 
 docs = load_json_to_documents(input_file)
@@ -94,7 +105,7 @@ rag_chain = (
 #resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/result1"
 
 questionPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\questions.txt"
-resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/resultWithOutCustom"
+resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/resultWithOP"
 
 test(questionPath, resultPath, rag_chain)
 
