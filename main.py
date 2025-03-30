@@ -73,7 +73,7 @@ load_dotenv()
 
 
 #input_file = "/Users/minseon/2025/학부연구생/RAG/RagWithChatbot/output_data.json" 
-input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\op_data.json" 
+input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\paraphrasing_data.json" 
 #input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/output_data.json"
 
 docs = load_json_to_documents(input_file)
@@ -105,7 +105,7 @@ rag_chain = (
 #resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/result1"
 
 questionPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\questions.txt"
-resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/resultWithOP"
+resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/p2"
 
 test(questionPath, resultPath, rag_chain)
 
