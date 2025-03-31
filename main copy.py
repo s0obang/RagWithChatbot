@@ -73,8 +73,8 @@ load_dotenv()
 
 
 #input_file = "/Users/minseon/2025/학부연구생/RAG/RagWithChatbot/output_data.json" 
-#input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\origin_data.json" 
-input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/origin_data.json"
+input_file = r"C:\Soop\연구\RagTest\ChatBotWithRag\op_data.json" 
+#input_file = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/origin_data.json"dh
 
 #docs = load_json_to_documents(input_file)
 with open(input_file, "r", encoding="utf-8") as f:
@@ -87,7 +87,7 @@ text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
 splits = text_splitter.split_documents(docs)
 
 # 벡터스토어 생성 (FAISS + OpenAI Embeddings)
-vectorstore = FAISS.from_documents(documents=docs, embedding=OpenAIEmbeddings())
+vectorstore = FAISS.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 retriever = vectorstore.as_retriever()
 
 print(f" Number of vectors stored: {vectorstore.index.ntotal}")
@@ -104,11 +104,11 @@ rag_chain = (
     | llm
     | StrOutputParser()
 )
-questionPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/questions.txt"
-resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/useSplitterOrigin"
+#questionPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/questions.txt"
+#resultPath = "/Users/soop/s0obang/학부연구생24w/RagWithChatbot/results/useSplitterOrigin"
 
-#questionPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\questions.txt"
-#resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/useSplitterOrigin"
+questionPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\questions.txt"
+resultPath = r"C:\Soop\연구\RagTest\ChatBotWithRag\results/splitter_wop"
 
 
 
